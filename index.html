@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Football Analysis & Odds Simulator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: #f4f4f4;
+    color: #333;
+  }
+  header {
+    background: #004080;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+  }
+  nav {
+    margin: 1rem 0;
+    text-align: center;
+  }
+  nav button {
+    margin: 0 10px;
+    padding: 0.5rem 1rem;
+    background: #0073e6;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  nav button:hover {
+    background: #005bb5;
+  }
+  section {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #ccc;
+  }
+  h2 {
+    color: #004080;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  th {
+    background: #0073e6;
+    color: white;
+  }
+  label {
+    display: block;
+    margin: 0.5rem 0 0.2rem;
+  }
+  input, select {
+    padding: 0.4rem;
+    width: 100%;
+    max-width: 200px;
+    margin-bottom: 1rem;
+  }
+  button.simulate {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  button.simulate:hover {
+    background: #1e7e34;
+  }
+  #result {
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Football Analysis & Odds Simulator</h1>
+</header>
+
+<nav>
+  <button onclick="showSection('landing')">Home</button>
+  <button onclick="showSection('analysis')">Game Analysis</button>
+  <button onclick="showSection('simulator')">Odds Simulator</button>
+</nav>
+
+<section id="landing">
+  <h2>Welcome to Football Insights</h2>
+  <p>Get daily football game analysis and simulate betting odds with our easy-to-use platform. Navigate to the Game Analysis section to see today's match insights or try the Odds Simulator to test your predictions.</p>
+</section>
+
+<section id="analysis" style="display:none;">
+  <h2>Live Football Matches</h2>
+  <div id="matchesContainer">Loading matches...</div>
+</section>
+
+<section id="simulator" style="display:none;">
+  <h2>Odds Simulator</h2>
+  <form id="oddsForm" onsubmit="simulateOdds(event)">
+    <label for="teamA">Team A Name:</label>
+    <input type="text" id="teamA" required placeholder="Enter Team A name" />
+
+    <label for="teamB">Team B Name:</label>
+    <input type="text" id="teamB" required placeholder="Enter Team B name" />
+
+    <label for="teamAScore">Team A Recent Win Rate (%):</label>
+    <input type="number" id="teamAScore" min="0" max="100" required placeholder="e.g. 60" />
+
+    <label for="teamBScore">Team B Recent Win Rate (%):</label>
+    <input type="number" id="teamBScore" min="0" max="100" required placeholder="e.g. 40" />
+
+    <button type="submit" class="simulate">Simulate Odds</button>
+  </form>
+  <div id="result"></div>
+</section>
+
+<script>
+  function showSection(sectionId) {
+    ['landing', 'analysis', 'simulator'].forEach(id => {
+      document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
+    });
+    document.getElementById('result').textContent = '';
+    document.getElementById('oddsForm').reset();
+    if (sectionId === 'analysis') {
+      loadLiveMatches();
+    }
+  }
+
+  async function loadLiveMatches() {
+    const container = document.getElementById('matchesContainer');
+    container.textContent = 'Loading matches...';
+    try {
+      const response = await fetch('http://localhost:3000/api/matches'); // Change localhost to your backend URL if deployed
+      const data = await response.json();
+
+      if (!data.matches || data.matches.length === 0) {
+        container.textContent = 'No live matches available.';
+        return;
+      }
+
+      let html = 
